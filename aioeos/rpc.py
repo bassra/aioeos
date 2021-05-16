@@ -43,16 +43,16 @@ class EosJsonRpc:
                 f'{self.URL}/v1{endpoint}',
                 json=json
             ) as res:
-                resp_dict = await res.json(content_type=None)
+                resp = await res.json(content_type=None)
 
                 # Who needs HTTP status codes, am I right? :D
-                if resp_dict.get('code') == 500:
-                    error = resp_dict.get('error', {})
+                if isinstance(resp, dict) and resp.get('code') == 500:
+                    error = resp.get('error', {})
                     raise ERROR_NAME_MAP.get(
                         error.get('name'),
                         exceptions.EosRpcException
                     )(error)
-                return resp_dict
+                return resp
 
     async def abi_json_to_bin(self, code, action, args):
         return await self.post(
